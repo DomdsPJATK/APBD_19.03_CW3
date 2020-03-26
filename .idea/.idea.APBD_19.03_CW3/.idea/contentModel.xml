@@ -18,6 +18,7 @@
         </e>
         <e p="Model" t="Include">
           <e p="Student.cs" t="Include" />
+          <e p="Studies.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">

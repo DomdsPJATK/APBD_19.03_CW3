@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Net.NetworkInformation;
+using System.Xml.Serialization;
 using APBD_19._03_CW3.DAL;
 using APBD_19._03_CW3.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APBD_19._03_CW3.Controllers
 {
-    
+
     [ApiController]
     [Route("api/students")]
     
@@ -20,23 +25,10 @@ namespace APBD_19._03_CW3.Controllers
         }
 
         [HttpGet]
-        public string GetStudent(string orderBy)
-        {
-            return $"Kowalski, Malewski, Andrzejewski sortowanie={orderBy}";
-        }
-        
-        [HttpGet("{id}")]
-        public IActionResult GetStudent(int id)
-        {
-            if (id == 1)
-            {
-                return Ok("Kowalski");
-            }else if (id == 2)
-            {
-                return Ok("Malewski");
-            }
 
-            return NotFound("Nie znaleziono studenta");
+        public IActionResult MessageToUser()
+        {
+            return Ok("Dopisz: database || database/nrindexu");
         }
 
         [HttpPost]
@@ -58,10 +50,53 @@ namespace APBD_19._03_CW3.Controllers
             return Ok("Usuwanie ukończone");
         }
 
-        [HttpGet("database")]
-        public IActionResult GetStudents(string orderBy)
+        [HttpGet("database/{idStudent}")]
+        public IActionResult GetStudents(string idStudent)
         {
-            return Ok(_dbService.GetStudents());
+            return Ok(GetStudentQuery("Select * from Student, Studies, Enrollment WHERE Student.IdEnrollment = Enrollment.IdEnrollment AND Enrollment.IdStudy = Studies.IdStudy AND Student.IndexNumber = @idStudent",idStudent));
+        }
+        
+        [HttpGet("database")]
+        
+        public IActionResult GetAllStudents()
+        {
+            return Ok(GetStudentQuery("Select * from Student, Studies, Enrollment WHERE Student.IdEnrollment = Enrollment.IdEnrollment AND Enrollment.IdStudy = Studies.IdStudy",""));
+        }
+
+        public List<Student> GetStudentQuery(string str,string par)
+        {
+            var students = new List<Student>();
+            using (var client = new SqlConnection("Data Source=db-mssql;Initial Catalog=s19036;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = client;
+                com.CommandText = str;
+                if (par != "")
+                {
+                    com.Parameters.AddWithValue("idStudent", par);
+                }
+                
+                client.Open();
+                var dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var student = new Student()
+                    {
+                        FirstName = dr["FirstName"].ToString(),
+                        LastName = dr["LastName"].ToString(),
+                        BirthDate = DateTime.Parse(dr["BirthDate"].ToString()),
+                        Studies = new Studies()
+                        {
+                            name = dr["Name"].ToString()
+                        },
+                        Semester = Int32.Parse(dr["Semester"].ToString())
+                    };
+                    students.Add(student);
+                }
+                client.Close();
+            }
+            
+            return students;
         }
         
     }
