@@ -47,7 +47,6 @@ namespace APBD_19._03_CW3.DAL
                     
                     com.CommandText = $"Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId}";
                     db = com.ExecuteReader();
-                    db.Read();
                     if (db[0].ToString() == "")
                     {
                         db.Close();
@@ -59,16 +58,16 @@ namespace APBD_19._03_CW3.DAL
                     }
                     else
                     {
-                        if(db.Read()){
                         com.CommandText =
                             $"Select * FROM Enrollment WHERE StartDate LIKE '{db[0].ToString()}' AND Semester = 1 AND IdStudy = {studiesId}";
                         db.Close();
                         db = com.ExecuteReader();
                         enrollmentId = Convert.ToInt32(db["IdEnrollment"].ToString());
-                        }
+                        Console.WriteLine("wchodzi tu");
                     }
                     
                     db.Close();
+                    Console.WriteLine(enrollmentId);
                     com.CommandText = $"INSERT INTO Student(FirstName, LastName, IndexNumber, BirthDate, IdEnrollment) VALUES ('{request.FirstName}', '{request.LastName}', '{request.IndexNumber}', '{request.BirthDate.ToString("MM-dd-yy")}',{enrollmentId})";
                     com.ExecuteReader();
 
