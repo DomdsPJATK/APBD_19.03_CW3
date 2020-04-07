@@ -27,6 +27,7 @@ namespace APBD_19._03_CW3
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IDbService, MockDbService>();
+            services.AddTransient<IStudentServiceDB, SqlStudentServiceDb>();
             services.AddControllers();
         }
 
