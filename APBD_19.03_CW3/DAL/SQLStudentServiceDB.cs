@@ -56,18 +56,31 @@ namespace APBD_19._03_CW3.DAL
                         enrollmentId = Convert.ToInt32(com.ExecuteScalar()) + 1;
                         db.Close();
                         com.CommandText =
-                            $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},'{DateTime.Now}')";
+                            $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},{DateTime.Now})";
                         com.ExecuteReader();
                     }
                     else
                     {
                         enrollmentId = Convert.ToInt32(db["IdEnrollment"].ToString());
-                        Console.WriteLine("wchodzi tu");
                     }
 
                     db.Close();
-                    com.CommandText = $"INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) VALUES ('{request.IndexNumber}', '{request.FirstName}', '{request.LastName}', '{request.BirthDate.ToString("MM-dd-yy")}',{enrollmentId})";
+                    com.CommandText = $"Select * FROM Student WHERE IndexNumber = {request.IndexNumber}";
                     db = com.ExecuteReader();
+                    if (!db.Read())
+                    {
+                        return new BadRequestResult();
+                    }
+                    else
+                    {
+                        com.CommandText = "INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) VALUES (@index, @firstName, @lastName, @date, @idenroll)";
+                        com.Parameters.AddWithValue("index", request.IndexNumber);
+                        com.Parameters.AddWithValue("firstName", request.FirstName);
+                        com.Parameters.AddWithValue("lastName", request.LastName);
+                        com.Parameters.AddWithValue("date", request.BirthDate);
+                        com.Parameters.AddWithValue("idenroll", enrollmentId);
+                        db = com.ExecuteReader();
+                    }
 
                     db.Close();
                     com.ExecuteNonQuery();
