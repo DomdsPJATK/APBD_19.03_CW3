@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection.Emit;
@@ -14,7 +15,6 @@ namespace APBD_19._03_CW3.DAL
 {
     public class SqlStudentServiceDb : IStudentServiceDB
     {
-
         private int studiesId;
         private int enrollmentId;
 
@@ -22,7 +22,8 @@ namespace APBD_19._03_CW3.DAL
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
-            using (var client = new SqlConnection("Data Source=db-mssql;Initial Catalog=s19036;Integrated Security=True"))
+            using (var client =
+                new SqlConnection("Data Source=db-mssql;Initial Catalog=s19036;Integrated Security=True"))
             using (var com = new SqlCommand())
             {
                 var studies = request.Studies;
@@ -44,32 +45,29 @@ namespace APBD_19._03_CW3.DAL
 
                     studiesId = (int) db["IdStudy"];
                     db.Close();
-                    
-                    com.CommandText = $"Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId}";
+
+                    com.CommandText =
+                        $"Select * FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId} AND StartDate = (Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId})";
                     db = com.ExecuteReader();
-                    if (db[0].ToString() == "")
+                    if (!db.Read())
                     {
                         db.Close();
                         com.CommandText = "Select MAX(IdEnrollment) From enrollment";
                         enrollmentId = Convert.ToInt32(com.ExecuteScalar()) + 1;
                         db.Close();
-                        com.CommandText = $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},'2015-04-20')";
+                        com.CommandText =
+                            $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},'{DateTime.Now}')";
                         com.ExecuteReader();
                     }
                     else
                     {
-                        com.CommandText =
-                            $"Select * FROM Enrollment WHERE StartDate LIKE '{db[0].ToString()}' AND Semester = 1 AND IdStudy = {studiesId}";
-                        db.Close();
-                        db = com.ExecuteReader();
                         enrollmentId = Convert.ToInt32(db["IdEnrollment"].ToString());
                         Console.WriteLine("wchodzi tu");
                     }
-                    
+
                     db.Close();
-                    Console.WriteLine(enrollmentId);
-                    com.CommandText = $"INSERT INTO Student(FirstName, LastName, IndexNumber, BirthDate, IdEnrollment) VALUES ('{request.FirstName}', '{request.LastName}', '{request.IndexNumber}', '{request.BirthDate.ToString("MM-dd-yy")}',{enrollmentId})";
-                    com.ExecuteReader();
+                    com.CommandText = $"INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) VALUES ('{request.IndexNumber}', '{request.FirstName}', '{request.LastName}', '{request.BirthDate.ToString("MM-dd-yy")}',{enrollmentId})";
+                    db = com.ExecuteReader();
 
                     db.Close();
                     com.ExecuteNonQuery();
@@ -82,10 +80,9 @@ namespace APBD_19._03_CW3.DAL
                     Console.WriteLine(e.ToString());
                     com.Transaction.Rollback();
                 }
-                
+
                 client.Close();
                 return new OkResult();
-
             }
         }
 
@@ -93,6 +90,5 @@ namespace APBD_19._03_CW3.DAL
         {
             throw new System.NotImplementedException();
         }
-        
     }
 }
