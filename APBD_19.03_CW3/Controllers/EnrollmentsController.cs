@@ -23,6 +23,12 @@ namespace APBD_19._03_CW3.Controllers
             return _service.EnrollStudent(request);
         }
         
+        [HttpPost("promotions")]
+        public IActionResult promoteStudent(PromoteStudentRequest request)
+        {
+            return _service.PromoteStudent(request.semester, request.studies);
+        }
+        
         
     }
 }

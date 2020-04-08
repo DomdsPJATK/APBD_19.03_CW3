@@ -17,13 +17,14 @@ namespace APBD_19._03_CW3.DAL
     {
         private int studiesId;
         private int enrollmentId;
+        private readonly string databaseURL = "Data Source=db-mssql;Initial Catalog=s19036;Integrated Security=True";
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
             using (var client =
-                new SqlConnection("Data Source=db-mssql;Initial Catalog=s19036;Integrated Security=True"))
+                new SqlConnection(databaseURL))
             using (var com = new SqlCommand())
             {
                 var studies = request.Studies;
@@ -47,7 +48,7 @@ namespace APBD_19._03_CW3.DAL
                     db.Close();
 
                     com.CommandText =
-                        $"Select * FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId} AND StartDate = (Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId})";
+                        $"Select * FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId} AND StartDate = (Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdS tudy = {studiesId})";
                     db = com.ExecuteReader();
                     if (!db.Read())
                     {
@@ -56,7 +57,7 @@ namespace APBD_19._03_CW3.DAL
                         enrollmentId = Convert.ToInt32(com.ExecuteScalar()) + 1;
                         db.Close();
                         com.CommandText =
-                            $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},{DateTime.Now})";
+                            $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},'{DateTime.Now}')";
                         com.ExecuteReader();
                     }
                     else
@@ -65,22 +66,22 @@ namespace APBD_19._03_CW3.DAL
                     }
 
                     db.Close();
-                    com.CommandText = $"Select * FROM Student WHERE IndexNumber = {request.IndexNumber}";
+                    com.CommandText = $"Select * FROM Student WHERE IndexNumber = '{request.IndexNumber}'";
                     db = com.ExecuteReader();
-                    if (!db.Read())
+                    if (db.Read())
                     {
                         return new BadRequestResult();
                     }
-                    else
-                    {
-                        com.CommandText = "INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) VALUES (@index, @firstName, @lastName, @date, @idenroll)";
-                        com.Parameters.AddWithValue("index", request.IndexNumber);
-                        com.Parameters.AddWithValue("firstName", request.FirstName);
-                        com.Parameters.AddWithValue("lastName", request.LastName);
-                        com.Parameters.AddWithValue("date", request.BirthDate);
-                        com.Parameters.AddWithValue("idenroll", enrollmentId);
-                        db = com.ExecuteReader();
-                    }
+
+                    db.Close();
+                    com.CommandText =
+                        "INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) VALUES (@index, @firstName, @lastName, @date, @idenroll)";
+                    com.Parameters.AddWithValue("index", request.IndexNumber);
+                    com.Parameters.AddWithValue("firstName", request.FirstName);
+                    com.Parameters.AddWithValue("lastName", request.LastName);
+                    com.Parameters.AddWithValue("date", request.BirthDate);
+                    com.Parameters.AddWithValue("idenroll", enrollmentId);
+                    db = com.ExecuteReader();
 
                     db.Close();
                     com.ExecuteNonQuery();
@@ -98,10 +99,39 @@ namespace APBD_19._03_CW3.DAL
                 return new OkResult();
             }
         }
-
-        public void PromoteStudent(int semester, string studiesName)
+        
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult PromoteStudent(int semester, string studiesName)
         {
-            throw new System.NotImplementedException();
+            using (var client =
+                new SqlConnection(databaseURL))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = client;
+                client.Open();
+                Console.WriteLine(semester);
+                Console.WriteLine(studiesName);
+                com.CommandText =
+                    "SELECT * FROM Enrollment, Studies WHERE Enrollment.IdStudy = Studies.IdStudy AND Studies.Name LIKE @studiesName AND Enrollment.Semester = @semester";
+                com.Parameters.AddWithValue("studiesName", studiesName);
+                com.Parameters.AddWithValue("semester", semester);
+                var db = com.ExecuteReader();
+                if (!db.Read())
+                {
+                    db.Close();
+                    return new NotFoundResult();
+                }
+                
+                db.Close();
+                com.CommandText = "exec promoteStudent @studiesName, @semester";
+                db = com.ExecuteReader();
+                
+                db.Close();
+                com.ExecuteNonQuery();
+                client.Close();
+                return new OkResult();
+            }
         }
     }
 }
