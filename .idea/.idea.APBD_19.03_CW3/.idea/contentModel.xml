@@ -28,6 +28,9 @@
           </e>
           <e p="Response" t="Include" />
         </e>
+        <e p="Middlewares" t="Include">
+          <e p="LogMiddleware.cs" t="Include" />
+        </e>
         <e p="Model" t="Include">
           <e p="Student.cs" t="Include" />
           <e p="Studies.cs" t="Include" />
@@ -43,6 +46,7 @@
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
         </e>
+        <e p="requestsLog.txt" t="Include" />
         <e p="Startup.cs" t="Include" />
       </e>
       <e p="APBD_19.03_CW3.sln" t="IncludeFlat" />
