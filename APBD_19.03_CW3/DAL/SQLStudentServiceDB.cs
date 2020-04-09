@@ -48,7 +48,7 @@ namespace APBD_19._03_CW3.DAL
                     db.Close();
 
                     com.CommandText =
-                        $"Select * FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId} AND StartDate = (Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdS tudy = {studiesId})";
+                        $"Select * FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId} AND StartDate = (Select MAX(StartDate) FROM Enrollment WHERE Semester = 1 AND IdStudy = {studiesId})";
                     db = com.ExecuteReader();
                     if (!db.Read())
                     {
@@ -57,8 +57,8 @@ namespace APBD_19._03_CW3.DAL
                         enrollmentId = Convert.ToInt32(com.ExecuteScalar()) + 1;
                         db.Close();
                         com.CommandText =
-                            $"INSERT INTO enrollment (IdEnrollment,Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},'{DateTime.Now}')";
-                        com.ExecuteReader();
+                            $"INSERT INTO enrollment (IdEnrollment, Semester, IdStudy, StartDate) VALUES ({enrollmentId},1,{studiesId},'{DateTime.Now}')";
+                        com.ExecuteNonQuery();
                     }
                     else
                     {
@@ -81,7 +81,6 @@ namespace APBD_19._03_CW3.DAL
                     com.Parameters.AddWithValue("lastName", request.LastName);
                     com.Parameters.AddWithValue("date", request.BirthDate);
                     com.Parameters.AddWithValue("idenroll", enrollmentId);
-                    db = com.ExecuteReader();
 
                     db.Close();
                     com.ExecuteNonQuery();
