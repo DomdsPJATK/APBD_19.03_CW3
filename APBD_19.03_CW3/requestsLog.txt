@@ -1,0 +1,19 @@
+Method: GET
+Path: /api/students
+QueryString: 
+Body: {
+    "IndexNumber": "s1236",
+    "FirstName": "Andrzej",
+    "LastName": "Malewski",
+    "BirthDate": "30.03.1993",
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: POST
+Path: /api/students
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
