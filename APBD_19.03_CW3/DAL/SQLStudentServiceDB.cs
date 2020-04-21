@@ -14,6 +14,7 @@ using APBD_19._03_CW3.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.IdentityModel.Tokens;
 
 namespace APBD_19._03_CW3.DAL
@@ -26,7 +27,6 @@ namespace APBD_19._03_CW3.DAL
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Policy = "employee")]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
             using (var client =
@@ -107,7 +107,6 @@ namespace APBD_19._03_CW3.DAL
         
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Policy = "employee")]
         public IActionResult PromoteStudent(int semester, string studiesName)
         {
             using (var client =
@@ -140,29 +139,21 @@ namespace APBD_19._03_CW3.DAL
             }
         }
 
-        public IActionResult CheckUserValidation(LoginReguestDTO login)
+        public SqlDataReader CheckValidation(LoginReguestDTO login)
         {
-            var claims = new[]
+            using(var connection = new SqlConnection())
+            using (var command = new SqlCommand())
             {
-                new Claim(ClaimTypes.NameIdentifier, "1"),
-                new Claim(ClaimTypes.Name, "jan123"),
-                new Claim(ClaimTypes.Role, "admin"),
-                new Claim(ClaimTypes.Role, "student")
-            };
-            
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                connection.ConnectionString = databaseURL;
+                command.Connection = connection;
+                
+                connection.Open();
+                command.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @index AND Student.Password = @password";
+                command.Parameters.AddWithValue("index", login.Login);
+                command.Parameters.AddWithValue("password", login.Password);
+                return command.ExecuteReader();
+            }
+        }
 
-            var token = new JwtSecurityToken(
-                issuer: "Domds",
-                audience: "Students",
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(10),
-                signingCredentials: creds
-            );
-            return 
-
-        } 
-        
     }
 }

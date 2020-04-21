@@ -26,14 +26,10 @@ namespace APBD_19._03_CW3.Controllers
     public class StudentsController : ControllerBase
     {
         private readonly IDbService _dbService;
-        private readonly IStudentServiceDB _studentServiceDb;
-        public IConfiguration Configuration { get; set; }
 
-        public StudentsController(IDbService dbService, SqlStudentServiceDb studentServiceDb, IConfiguration configuration)
+        public StudentsController(IDbService dbService)
         {
-            Configuration = configuration;
             _dbService = dbService;
-            _studentServiceDb = studentServiceDb;
         }
 
         [HttpGet]
@@ -109,12 +105,5 @@ namespace APBD_19._03_CW3.Controllers
             
             return students;
         }
-
-        [HttpPost]
-        public IActionResult Login(LoginReguestDTO loginReguest)
-        {
-            return _studentServiceDb.CheckUserValidation(loginReguest);
-        }
-        
     }
 }
