@@ -8,7 +8,8 @@ namespace APBD_19._03_CW3.DAL
     {
         public IActionResult EnrollStudent(EnrollStudentRequest request);
         public IActionResult PromoteStudent(int semester, string studiesName);
-        
+        public IActionResult CheckUserValidation(LoginReguestDTO login);
+
     }
     
 }

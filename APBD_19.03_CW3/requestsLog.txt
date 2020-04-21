@@ -17,3 +17,59 @@ Body: {
     "Studies": "Sztuka nowych mediow"
 }
 
+Method: POST
+Path: /api/students
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: GET
+Path: /api/students/database
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: GET
+Path: /api/students/database
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: GET
+Path: /api/students/database
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: GET
+Path: /api/students/database
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: GET
+Path: /api/students/database
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+
+Method: GET
+Path: /api/students/database
+QueryString: 
+Body: {
+	"Semester": 1
+    "Studies": "Sztuka nowych mediow"
+}
+

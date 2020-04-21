@@ -2,12 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
+using System.Text;
 using System.Xml.Serialization;
 using APBD_19._03_CW3.DAL;
+using APBD_19._03_CW3.DTOs.Request;
 using APBD_19._03_CW3.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace APBD_19._03_CW3.Controllers
 {
@@ -18,10 +26,14 @@ namespace APBD_19._03_CW3.Controllers
     public class StudentsController : ControllerBase
     {
         private readonly IDbService _dbService;
+        private readonly IStudentServiceDB _studentServiceDb;
+        public IConfiguration Configuration { get; set; }
 
-        public StudentsController(IDbService dbService)
+        public StudentsController(IDbService dbService, SqlStudentServiceDb studentServiceDb, IConfiguration configuration)
         {
+            Configuration = configuration;
             _dbService = dbService;
+            _studentServiceDb = studentServiceDb;
         }
 
         [HttpGet]
@@ -57,7 +69,6 @@ namespace APBD_19._03_CW3.Controllers
         }
         
         [HttpGet("database")]
-        
         public IActionResult GetAllStudents()
         {
             return Ok(GetStudentQuery("Select * from Student, Studies, Enrollment WHERE Student.IdEnrollment = Enrollment.IdEnrollment AND Enrollment.IdStudy = Studies.IdStudy",""));
@@ -97,6 +108,12 @@ namespace APBD_19._03_CW3.Controllers
             }
             
             return students;
+        }
+
+        [HttpPost]
+        public IActionResult Login(LoginReguestDTO loginReguest)
+        {
+            return _studentServiceDb.CheckUserValidation(loginReguest);
         }
         
     }

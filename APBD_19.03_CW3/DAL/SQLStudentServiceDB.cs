@@ -2,14 +2,19 @@
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Emit;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using APBD_19._03_CW3.DTOs.Request;
 using APBD_19._03_CW3.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace APBD_19._03_CW3.DAL
 {
@@ -21,6 +26,7 @@ namespace APBD_19._03_CW3.DAL
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = "employee")]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
             using (var client =
@@ -101,6 +107,7 @@ namespace APBD_19._03_CW3.DAL
         
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Policy = "employee")]
         public IActionResult PromoteStudent(int semester, string studiesName)
         {
             using (var client =
@@ -132,5 +139,30 @@ namespace APBD_19._03_CW3.DAL
                 return new OkResult();
             }
         }
+
+        public IActionResult CheckUserValidation(LoginReguestDTO login)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "1"),
+                new Claim(ClaimTypes.Name, "jan123"),
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "student")
+            };
+            
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "Domds",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: creds
+            );
+            return 
+
+        } 
+        
     }
 }

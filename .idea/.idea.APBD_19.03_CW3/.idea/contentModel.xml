@@ -24,9 +24,13 @@
         <e p="DTOs" t="Include">
           <e p="Request" t="Include">
             <e p="EnrollStudentRequest.cs" t="Include" />
+            <e p="LoginReguestDTO.cs" t="Include" />
             <e p="PromoteStudentRequest.cs" t="Include" />
           </e>
           <e p="Response" t="Include" />
+        </e>
+        <e p="Handlers" t="Include">
+          <e p="BasicAuthHandler.cs" t="Include" />
         </e>
         <e p="Middlewares" t="Include">
           <e p="LogMiddleware.cs" t="Include" />
