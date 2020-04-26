@@ -62,7 +62,7 @@ namespace APBD_19._03_CW3.Controllers
                 signingCredentials: creds
             );
             
-            return Ok(new
+            return new OkObjectResult(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 refreshToken = Guid.NewGuid()
